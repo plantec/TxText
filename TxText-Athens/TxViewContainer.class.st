@@ -88,7 +88,7 @@ TxViewContainer class >> exampleEditorExistingTextWithEmbeddedObjects [
 "
 	| view wrapper text |
 
-	text := 'abciuwhfi whifu wehifuhweifu wi ' asTxModel.
+	text := String loremIpsum  asTxModel.
 
 	1 to: 1000 do: [:i | 
 	text endPosition insert: i asString, ' empty bottles on the bar'.

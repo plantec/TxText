@@ -1,6 +1,6 @@
 Class {
-	#name : #TxTextEditorMorph,
-	#superclass : #TxBasicViewMorph,
+	#name : #TxTextEditorElement,
+	#superclass : #TxBasicViewElement,
 	#instVars : [
 		'controller',
 		'cursorMorph',
@@ -13,7 +13,7 @@ Class {
 }
 
 { #category : #keybindings }
-TxTextEditorMorph class >> buildTextEditorKeymapsOn: aBuilder [	 
+TxTextEditorElement class >> buildTextEditorKeymapsOn: aBuilder [	 
 	<keymap> 
 	 
 	{  
@@ -50,7 +50,7 @@ TxTextEditorMorph class >> buildTextEditorKeymapsOn: aBuilder [
 ]
 
 { #category : #examples }
-TxTextEditorMorph class >> exampleHugeText [
+TxTextEditorElement class >> exampleHugeText [
 
 	| text |
 	text := TxModel new.
@@ -63,7 +63,7 @@ TxTextEditorMorph class >> exampleHugeText [
 ]
 
 { #category : #examples }
-TxTextEditorMorph class >> exampleSimple [
+TxTextEditorElement class >> exampleSimple [
 
 	| text |
 	text := TxModel new.
@@ -74,7 +74,7 @@ TxTextEditorMorph class >> exampleSimple [
 ]
 
 { #category : #examples }
-TxTextEditorMorph class >> exampleTextMultiSizeFont [
+TxTextEditorElement class >> exampleTextMultiSizeFont [
 
 	| text |
 	text := TxModel new.
@@ -91,7 +91,7 @@ TxTextEditorMorph class >> exampleTextMultiSizeFont [
 ]
 
 { #category : #examples }
-TxTextEditorMorph class >> exampleWithCustomClickAction [
+TxTextEditorElement class >> exampleWithCustomClickAction [
 	| text action selection |
 	text := 'abciuwhfi whifu wehifuhweifu wi ' asTxModel.
 	action := TxActionAttribute new 
@@ -105,7 +105,7 @@ TxTextEditorMorph class >> exampleWithCustomClickAction [
 ]
 
 { #category : #examples }
-TxTextEditorMorph class >> exampleWithCustomCursor [
+TxTextEditorElement class >> exampleWithCustomCursor [
 	| text selection |
 	text := 'abciuwhfi whifu wehifuhweifu wi ' asTxModel.
 	selection := text startPosition selectTo: (text startPosition + 20).
@@ -116,7 +116,7 @@ TxTextEditorMorph class >> exampleWithCustomCursor [
 ]
 
 { #category : #examples }
-TxTextEditorMorph class >> exampleWithEmbeddedObject [
+TxTextEditorElement class >> exampleWithEmbeddedObject [
 
 	| text |
 	text := TxModel new.
@@ -132,23 +132,23 @@ TxTextEditorMorph class >> exampleWithEmbeddedObject [
 ]
 
 { #category : #initialization }
-TxTextEditorMorph class >> initialize [
+TxTextEditorElement class >> initialize [
 	
 	CursorEdgeMargin := 10. "This constant controls the margin between the view's edge and the cursor, used when the view is auto-scrolled to make the current cursor position fully visible and not clipped"
 ]
 
 { #category : #editing }
-TxTextEditorMorph >> addNewLineAtCursor [
+TxTextEditorElement >> addNewLineAtCursor [
 	self insert: Character cr
 ]
 
 { #category : #testing }
-TxTextEditorMorph >> allowsKeymapping [
+TxTextEditorElement >> allowsKeymapping [
 	^ true
 ]
 
 { #category : #scrolling }
-TxTextEditorMorph >> autoScrollView: evt [
+TxTextEditorElement >> autoScrollView: evt [
 	"This is kind of a hack because the PluggableTextMorph expects me to first expand the selection before auto scrolling will work."
 
 	evt position y < self top
@@ -159,24 +159,24 @@ TxTextEditorMorph >> autoScrollView: evt [
 ]
 
 { #category : #accessing }
-TxTextEditorMorph >> borderWidth [
+TxTextEditorElement >> borderWidth [
 	^ 0
 ]
 
 { #category : #'text wrapping' }
-TxTextEditorMorph >> characterWrappingStrategy [
+TxTextEditorElement >> characterWrappingStrategy [
 
 	^ TxAthensCharacterWrappingStrategy new rightMargin: CursorEdgeMargin
 ]
 
 { #category : #accessing }
-TxTextEditorMorph >> clipSubmorphs [
+TxTextEditorElement >> clipSubmorphs [
 	"we're always clipping"
 	^ true
 ]
 
 { #category : #accessing }
-TxTextEditorMorph >> contents: anObject [
+TxTextEditorElement >> contents: anObject [
  
 	controller contents: anObject.
 	
@@ -185,18 +185,18 @@ TxTextEditorMorph >> contents: anObject [
 ]
 
 { #category : #accessing }
-TxTextEditorMorph >> controller [
+TxTextEditorElement >> controller [
 	^ controller
 ]
 
 { #category : #updating }
-TxTextEditorMorph >> controllerChanged [
+TxTextEditorElement >> controllerChanged [
 	layoutViewMorph updateMorph.
 	self updateCursor: true.
 ]
 
 { #category : #editing }
-TxTextEditorMorph >> copyToClipboard [
+TxTextEditorElement >> copyToClipboard [
 	self halt.
 	controller selection isEmpty ifTrue: [ ^ self ].
 
@@ -207,7 +207,7 @@ TxTextEditorMorph >> copyToClipboard [
 ]
 
 { #category : #accessing }
-TxTextEditorMorph >> cursor: aTxCursor [ 
+TxTextEditorElement >> cursor: aTxCursor [ 
 
 	cursorMorph delete.
 	cursorMorph := aTxCursor.
@@ -215,7 +215,7 @@ TxTextEditorMorph >> cursor: aTxCursor [
 ]
 
 { #category : #'event handling' }
-TxTextEditorMorph >> cursorForPosition: aPoint [
+TxTextEditorElement >> cursorForPosition: aPoint [
 	| pos |
 	pos := layoutViewMorph textPositionAt: (aPoint - layoutViewMorph innerBounds origin).
 	^ pos span attributeAt: TxMouseCursorAttribute.
@@ -223,7 +223,7 @@ TxTextEditorMorph >> cursorForPosition: aPoint [
 ]
 
 { #category : #editing }
-TxTextEditorMorph >> cutToClipboard [
+TxTextEditorElement >> cutToClipboard [
 	
 	controller selection isEmpty ifTrue: [ ^ self ].
 
@@ -233,12 +233,12 @@ TxTextEditorMorph >> cutToClipboard [
 ]
 
 { #category : #initialization }
-TxTextEditorMorph >> defaultCursor [
+TxTextEditorElement >> defaultCursor [
 	^ TxCaretCursor new
 ]
 
 { #category : #updating }
-TxTextEditorMorph >> doLayoutIn: layoutBounds [
+TxTextEditorElement >> doLayoutIn: layoutBounds [
 
 	"force view morph to always cover layout bounds"
 	layoutViewMorph bounds: layoutBounds.
@@ -248,7 +248,7 @@ TxTextEditorMorph >> doLayoutIn: layoutBounds [
 ]
 
 { #category : #drawing }
-TxTextEditorMorph >> drawCursorPositionOn: aCanvas [
+TxTextEditorElement >> drawCursorPositionOn: aCanvas [
 	"debugging: draw the cursor position (line/col numbers)"
 	| pathTransform pos |
 
@@ -265,7 +265,7 @@ TxTextEditorMorph >> drawCursorPositionOn: aCanvas [
 ]
 
 { #category : #drawing }
-TxTextEditorMorph >> drawKeyboardFocusOn: aCanvas [ 
+TxTextEditorElement >> drawKeyboardFocusOn: aCanvas [ 
 	"draw an outline, indicating that receiver has the input focus"
 	| stroke |
 	stroke := aCanvas setStrokePaint: Color yellow.
@@ -279,12 +279,12 @@ TxTextEditorMorph >> drawKeyboardFocusOn: aCanvas [
 ]
 
 { #category : #'drawing-not supported' }
-TxTextEditorMorph >> drawOn: aCanvas [
+TxTextEditorElement >> drawOn: aCanvas [
 	"I'm Athens only!"
 ]
 
 { #category : #drawing }
-TxTextEditorMorph >> drawOnAthensCanvas: aCanvas [
+TxTextEditorElement >> drawOnAthensCanvas: aCanvas [
 	super drawOnAthensCanvas: aCanvas.
 	self drawSelectionOn: aCanvas.
 	self hasKeyboardFocus 
@@ -292,7 +292,7 @@ TxTextEditorMorph >> drawOnAthensCanvas: aCanvas [
 ]
 
 { #category : #drawing }
-TxTextEditorMorph >> drawOverlaysOn: aCanvas [
+TxTextEditorElement >> drawOverlaysOn: aCanvas [
 	"draw an overlays (after all submorphs being drawn)"
 	
 	| pathTransform |
@@ -311,7 +311,7 @@ TxTextEditorMorph >> drawOverlaysOn: aCanvas [
 ]
 
 { #category : #drawing }
-TxTextEditorMorph >> drawSelectionOn: aCanvas [
+TxTextEditorElement >> drawSelectionOn: aCanvas [
 
 	controller selection isEmpty ifTrue: [ ^ self ].
 	aCanvas pathTransform restoreAfter: [ 
@@ -326,36 +326,36 @@ TxTextEditorMorph >> drawSelectionOn: aCanvas [
 ]
 
 { #category : #'drawing-not supported' }
-TxTextEditorMorph >> drawSubmorphsOn: aCanvas [
+TxTextEditorElement >> drawSubmorphsOn: aCanvas [
 	"I'm Athens only!"
 ]
 
 { #category : #'navigation-selection' }
-TxTextEditorMorph >> extendSelectionDown [
+TxTextEditorElement >> extendSelectionDown [
 	self moveDown: true.
 	
 ]
 
 { #category : #'navigation-selection' }
-TxTextEditorMorph >> extendSelectionLeft [
+TxTextEditorElement >> extendSelectionLeft [
 	controller extendSelectionLeft.
 	self updateCursor: true.
 ]
 
 { #category : #'navigation-selection' }
-TxTextEditorMorph >> extendSelectionRight [
+TxTextEditorElement >> extendSelectionRight [
 	controller extendSelectionRight.
 	self updateCursor: true.
 ]
 
 { #category : #'navigation-selection' }
-TxTextEditorMorph >> extendSelectionUp [
+TxTextEditorElement >> extendSelectionUp [
 	self moveUp: true.
 	
 ]
 
 { #category : #drawing }
-TxTextEditorMorph >> fullDrawOnAthensCanvas: aCanvas [
+TxTextEditorElement >> fullDrawOnAthensCanvas: aCanvas [
 	| clip |
 	super fullDrawOnAthensCanvas: aCanvas.
 	clip := self clippingBounds.
@@ -366,7 +366,7 @@ TxTextEditorMorph >> fullDrawOnAthensCanvas: aCanvas [
 ]
 
 { #category : #editing }
-TxTextEditorMorph >> handleBackspaceKey [
+TxTextEditorElement >> handleBackspaceKey [
 	(controller selection contains: self layoutView layout startPosition)
 		ifTrue: [ 
 			"The selected portion to delete contains layout starting position. We must
@@ -379,7 +379,7 @@ TxTextEditorMorph >> handleBackspaceKey [
 ]
 
 { #category : #editing }
-TxTextEditorMorph >> handleDeleteKey [
+TxTextEditorElement >> handleDeleteKey [
 
 	(controller selection contains: (self layoutView layout startPosition)) ifTrue: [ 
 		"The selected portion to delete contains layout starting position. We must
@@ -392,13 +392,13 @@ TxTextEditorMorph >> handleDeleteKey [
 ]
 
 { #category : #editing }
-TxTextEditorMorph >> handleEnterKey [
+TxTextEditorElement >> handleEnterKey [
 	self insert: String cr.
 	self controllerChanged.
 ]
 
 { #category : #'event handling' }
-TxTextEditorMorph >> handleMouseMove: anEvent [
+TxTextEditorElement >> handleMouseMove: anEvent [
 	"Reimplemented because we really want #mouseMove when a morph is dragged around"
 	anEvent wasHandled ifTrue:[^self]. "not interested"
 	(anEvent hand hasSubmorphs) ifTrue:[^self].
@@ -414,51 +414,51 @@ TxTextEditorMorph >> handleMouseMove: anEvent [
 ]
 
 { #category : #'event handling' }
-TxTextEditorMorph >> handlesKeyDown: event [
+TxTextEditorElement >> handlesKeyDown: event [
 	^ true
 ]
 
 { #category : #'event handling' }
-TxTextEditorMorph >> handlesKeyboard: evt [
+TxTextEditorElement >> handlesKeyboard: evt [
 	
 	^true
 ]
 
 { #category : #'event handling' }
-TxTextEditorMorph >> handlesMouseDown: event [
+TxTextEditorElement >> handlesMouseDown: event [
 	^ true
 ]
 
 { #category : #'event handling' }
-TxTextEditorMorph >> handlesMouseOver: evt [ 
+TxTextEditorElement >> handlesMouseOver: evt [ 
 	"Do I want to receive mouseEnter: and mouseLeave: when the button is up and the hand is empty?"
 	^ true
 ]
 
 { #category : #'event handling' }
-TxTextEditorMorph >> handlesMouseWheel: event [
+TxTextEditorElement >> handlesMouseWheel: event [
 	^ true
 ]
 
 { #category : #'focus management' }
-TxTextEditorMorph >> hasFocus [
+TxTextEditorElement >> hasFocus [
 	^ self hasKeyboardFocus
 ]
 
 { #category : #updating }
-TxTextEditorMorph >> initializeController [
+TxTextEditorElement >> initializeController [
 	controller := TxTextEditor text: self text.
 	self controllerChanged.
 ]
 
 { #category : #initialization }
-TxTextEditorMorph >> initializeShortcuts: aKMDispatcher [
+TxTextEditorElement >> initializeShortcuts: aKMDispatcher [
 self halt.
 	aKMDispatcher attachCategory: #TxTextEditorMorph 
 ]
 
 { #category : #initialization }
-TxTextEditorMorph >> initializeText: aTxModel [ 
+TxTextEditorElement >> initializeText: aTxModel [ 
 	cursorMorph := TxCaretCursor new.
 	self addMorph: cursorMorph.
 
@@ -474,7 +474,7 @@ TxTextEditorMorph >> initializeText: aTxModel [
 ]
 
 { #category : #editing }
-TxTextEditorMorph >> insert: aString [ 	
+TxTextEditorElement >> insert: aString [ 	
 
 	controller insert: aString.
 
@@ -482,14 +482,14 @@ TxTextEditorMorph >> insert: aString [
 ]
 
 { #category : #editing }
-TxTextEditorMorph >> insertObject: anObject [ 	
+TxTextEditorElement >> insertObject: anObject [ 	
 
 	controller insertObject: anObject.
 	self controllerChanged.
 ]
 
 { #category : #'event handling' }
-TxTextEditorMorph >> keyDown: anEvent [ 
+TxTextEditorElement >> keyDown: anEvent [ 
 	super keyDown: anEvent.
 	
 	
@@ -497,7 +497,7 @@ TxTextEditorMorph >> keyDown: anEvent [
 ]
 
 { #category : #'event handling' }
-TxTextEditorMorph >> keyStroke: anEvent [ 
+TxTextEditorElement >> keyStroke: anEvent [ 
 
 	self insert:  anEvent keyCharacter asString. 
 	
@@ -505,7 +505,7 @@ TxTextEditorMorph >> keyStroke: anEvent [
 ]
 
 { #category : #'focus management' }
-TxTextEditorMorph >> keyboardFocusChange: gotFocus [
+TxTextEditorElement >> keyboardFocusChange: gotFocus [
 
 	super keyboardFocusChange: gotFocus.
 	
@@ -513,23 +513,23 @@ TxTextEditorMorph >> keyboardFocusChange: gotFocus [
 ]
 
 { #category : #accessing }
-TxTextEditorMorph >> layoutStrategy: aStrategy [
+TxTextEditorElement >> layoutStrategy: aStrategy [
 
 	self layoutViewMorph layoutStrategy: aStrategy
 ]
 
 { #category : #accessing }
-TxTextEditorMorph >> layoutView [
+TxTextEditorElement >> layoutView [
 	^ layoutViewMorph layoutView
 ]
 
 { #category : #accessing }
-TxTextEditorMorph >> layoutViewMorph [
+TxTextEditorElement >> layoutViewMorph [
 	^ layoutViewMorph
 ]
 
 { #category : #'event handling' }
-TxTextEditorMorph >> mouseDown: anEvent [
+TxTextEditorElement >> mouseDown: anEvent [
 	| pos action point |
 	self takeKeyboardFocus.
 	
@@ -555,7 +555,7 @@ TxTextEditorMorph >> mouseDown: anEvent [
 ]
 
 { #category : #'event handling' }
-TxTextEditorMorph >> mouseLeave: evt [
+TxTextEditorElement >> mouseLeave: evt [
 	"Handle a mouseLeave event, meaning the mouse just left my bounds with no button pressed."
 	super mouseLeave: evt.
 	self currentHand showTemporaryCursor: nil
@@ -563,7 +563,7 @@ TxTextEditorMorph >> mouseLeave: evt [
 ]
 
 { #category : #'event handling' }
-TxTextEditorMorph >> mouseMove: anEvent [
+TxTextEditorElement >> mouseMove: anEvent [
 
 	anEvent hand showTemporaryCursor: (self cursorForPosition: anEvent position).
 
@@ -581,12 +581,12 @@ TxTextEditorMorph >> mouseMove: anEvent [
 ]
 
 { #category : #'event handling' }
-TxTextEditorMorph >> mouseUp: anEvent [
+TxTextEditorElement >> mouseUp: anEvent [
 	self stopSteppingSelector: #autoScrollView:.
 ]
 
 { #category : #'event handling' }
-TxTextEditorMorph >> mouseWheel: event [
+TxTextEditorElement >> mouseWheel: event [
 	event isUp ifTrue: [
 		layoutViewMorph scrollBy: 0@ (layoutViewMorph height/10) negated.
 		  ].
@@ -598,7 +598,7 @@ TxTextEditorMorph >> mouseWheel: event [
 ]
 
 { #category : #navigation }
-TxTextEditorMorph >> moveDown [
+TxTextEditorElement >> moveDown [
 	"move down visually"
 	| pos visualPos point |
 
@@ -620,7 +620,7 @@ TxTextEditorMorph >> moveDown [
 ]
 
 { #category : #navigation }
-TxTextEditorMorph >> moveDown: extendingSelection [
+TxTextEditorElement >> moveDown: extendingSelection [
 	"move down visually"
 	| pos visualPos point |
 
@@ -646,14 +646,14 @@ TxTextEditorMorph >> moveDown: extendingSelection [
 ]
 
 { #category : #navigation }
-TxTextEditorMorph >> moveLeft [
+TxTextEditorElement >> moveLeft [
 
 	controller moveLeft.
 	self updateCursor: true.
 ]
 
 { #category : #navigation }
-TxTextEditorMorph >> movePageDown [
+TxTextEditorElement >> movePageDown [
 	"move down visually"
 	| pos visualPos point |
 
@@ -674,7 +674,7 @@ TxTextEditorMorph >> movePageDown [
 ]
 
 { #category : #navigation }
-TxTextEditorMorph >> movePageUp [
+TxTextEditorElement >> movePageUp [
 	"move up visually"
 	| pos visualPos point |
 
@@ -696,14 +696,14 @@ TxTextEditorMorph >> movePageUp [
 ]
 
 { #category : #navigation }
-TxTextEditorMorph >> moveRight [
+TxTextEditorElement >> moveRight [
 	
 	controller moveRight.
 	self updateCursor: true.
 ]
 
 { #category : #navigation }
-TxTextEditorMorph >> moveTo: aPoint [
+TxTextEditorElement >> moveTo: aPoint [
 	"when user clicks on text, move a text cursor close to hand position"
 	| textPosition |
 	textPosition := layoutViewMorph textPositionAt: aPoint.
@@ -713,28 +713,28 @@ TxTextEditorMorph >> moveTo: aPoint [
 ]
 
 { #category : #navigation }
-TxTextEditorMorph >> moveToLineEnd [
+TxTextEditorElement >> moveToLineEnd [
 
 	controller moveToLineEnd.
 	self updateCursor: true.
 ]
 
 { #category : #navigation }
-TxTextEditorMorph >> moveToLineStart [
+TxTextEditorElement >> moveToLineStart [
 
 	controller moveToLineStart.
 	self updateCursor: true.
 ]
 
 { #category : #navigation }
-TxTextEditorMorph >> moveUp [
+TxTextEditorElement >> moveUp [
 	"move cursor up"
 
 	^ self moveUp: false
 ]
 
 { #category : #navigation }
-TxTextEditorMorph >> moveUp: extendingSelection [
+TxTextEditorElement >> moveUp: extendingSelection [
 	"move up visually"
 	| pos visualPos point |
 	pos := controller cursorPosition.
@@ -758,20 +758,20 @@ TxTextEditorMorph >> moveUp: extendingSelection [
 ]
 
 { #category : #initialization }
-TxTextEditorMorph >> newViewMorphOn: aTxModel [ 
+TxTextEditorElement >> newViewMorphOn: aTxModel [ 
 	^ TxLayoutViewMorph text: aTxModel .
 
 ]
 
 { #category : #updating }
-TxTextEditorMorph >> ownerChanged [
+TxTextEditorElement >> ownerChanged [
 
 	self updateCursor .
 	
 ]
 
 { #category : #editing }
-TxTextEditorMorph >> pasteClipboard [
+TxTextEditorElement >> pasteClipboard [
 	| stuff |
 	
 	stuff := Clipboard clipboardText asString.
@@ -780,7 +780,7 @@ TxTextEditorMorph >> pasteClipboard [
 ]
 
 { #category : #scrolling }
-TxTextEditorMorph >> resetViewTo: startPosition [
+TxTextEditorElement >> resetViewTo: startPosition [
 
 	layoutViewMorph resetViewTo: startPosition.
 	self updateCursor: false.
@@ -788,27 +788,27 @@ TxTextEditorMorph >> resetViewTo: startPosition [
 ]
 
 { #category : #scrolling }
-TxTextEditorMorph >> scrollBy: aPoint [ 
+TxTextEditorElement >> scrollBy: aPoint [ 
 	layoutViewMorph scrollBy: aPoint.
 	self changed.
 ]
 
 { #category : #navigation }
-TxTextEditorMorph >> scrollIntoView: aTextPosition [
+TxTextEditorElement >> scrollIntoView: aTextPosition [
 
 	layoutViewMorph scrollIntoView: aTextPosition.
 	self updateCursor: false.
 ]
 
 { #category : #'navigation-selection' }
-TxTextEditorMorph >> selectAll [
+TxTextEditorElement >> selectAll [
 	controller selectAll.
 	self updateCursor: false.
 	self changed.
 ]
 
 { #category : #'navigation-selection' }
-TxTextEditorMorph >> selectTo: aPoint [ 
+TxTextEditorElement >> selectTo: aPoint [ 
 	"when user clicks on text, shift key select close to hand position"
 	| textPosition |
 	textPosition := layoutViewMorph textPositionAt: aPoint.
@@ -818,47 +818,47 @@ TxTextEditorMorph >> selectTo: aPoint [
 ]
 
 { #category : #navigation }
-TxTextEditorMorph >> selectToLineEnd [
+TxTextEditorElement >> selectToLineEnd [
 
 	controller extendSelectionToLineEnd.
 	self updateCursor: true.
 ]
 
 { #category : #navigation }
-TxTextEditorMorph >> selectToLineStart [
+TxTextEditorElement >> selectToLineStart [
 
 	controller extendSelectionToLineStart.
 	self updateCursor: true.
 ]
 
 { #category : #testing }
-TxTextEditorMorph >> selectionIsEmpty [
+TxTextEditorElement >> selectionIsEmpty [
 	^ controller selection isEmpty
 ]
 
 { #category : #'focus management' }
-TxTextEditorMorph >> takesKeyboardFocus [
+TxTextEditorElement >> takesKeyboardFocus [
 	^ true
 ]
 
 { #category : #accessing }
-TxTextEditorMorph >> text [
+TxTextEditorElement >> text [
 	^ layoutViewMorph text 
 ]
 
 { #category : #editing }
-TxTextEditorMorph >> undo [ 	
+TxTextEditorElement >> undo [ 	
 	controller undo.
 	self controllerChanged.
 ]
 
 { #category : #updating }
-TxTextEditorMorph >> updateCursor [
+TxTextEditorElement >> updateCursor [
 	self updateCursor: false.
 ]
 
 { #category : #updating }
-TxTextEditorMorph >> updateCursor: scrollViewToCursorPos [
+TxTextEditorElement >> updateCursor: scrollViewToCursorPos [
 
 	| position textPosition |
 
