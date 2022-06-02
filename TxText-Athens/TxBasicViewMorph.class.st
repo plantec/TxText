@@ -47,7 +47,8 @@ TxBasicViewMorph class >> openInWindowWithText: aTxModel [
 		layoutPolicy: ProportionalLayout new;
 		addMorph: editorMorph.
 	
-	^ wrapper openInWindow
+	wrapper openInWindow.
+	^ editorMorph
 ]
 
 { #category : #'instance creation' }

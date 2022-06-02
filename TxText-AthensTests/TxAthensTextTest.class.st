@@ -5,6 +5,11 @@ Class {
 }
 
 { #category : #private }
+TxAthensTextTest >> defaultLayoutViewExtent [
+	self subclassResponsibility 
+]
+
+{ #category : #private }
 TxAthensTextTest >> defaultStrategy [
 	^ TxAthensNoWrapStrategy new
 ]

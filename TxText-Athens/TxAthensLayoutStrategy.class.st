@@ -27,7 +27,7 @@ TxAthensLayoutStrategy >> completeLine [
 	metStopCondition := true.
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #geometry }
 TxAthensLayoutStrategy >> fontMetricsProviderFor: aFont [
 	^ self view fontMetricsProviderFor: aFont
 ]

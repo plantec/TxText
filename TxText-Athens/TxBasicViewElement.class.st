@@ -1,9 +1,6 @@
 Class {
 	#name : #TxBasicViewElement,
 	#superclass : #BlElement,
-	#instVars : [
-		'backgroundColor'
-	],
 	#category : #'TxText-Athens-Widgets'
 }
 
@@ -34,20 +31,14 @@ TxBasicViewElement class >> openInWindowWithText: aTxModel [
 	"PLEASE NOTE!!! This method is not part of official API.
 	used only for examples"
  
-	| editorMorph wrapper |
-	editorMorph := self text: aTxModel.
-	editorMorph
-		hResizing: #spaceFill;
-		vResizing: #spaceFill;
-		layoutFrame: LayoutFrame identity;
+	| editorElement wrapper |
+	editorElement := self text: aTxModel.
+	editorElement constraintsDo: [ :c |
+			c horizontal matchParent.
+			c vertical matchParent ]; 
 		wrapText: true.
-		
-	wrapper := AthensWrapMorph new.
-	wrapper
-		layoutPolicy: ProportionalLayout new;
-		addMorph: editorMorph.
-	
-	^ wrapper openInWindow
+	editorElement openInOblSpace.
+	^ editorElement
 ]
 
 { #category : #'instance creation' }
@@ -55,16 +46,6 @@ TxBasicViewElement class >> text: aTxModel [
 	^ self new
 		initializeText: aTxModel asTxModel;
 		yourself.
-]
-
-{ #category : #accessing }
-TxBasicViewElement >> backgroundColor [
-	^ backgroundColor
-]
-
-{ #category : #accessing }
-TxBasicViewElement >> backgroundColor: anObject [
-	backgroundColor := anObject
 ]
 
 { #category : #'text wrapping' }
@@ -103,15 +84,6 @@ TxBasicViewElement >> drawOnSpartaCanvas: aCanvas [
 	super drawOnSpartaCanvas: aCanvas 
 ]
 
-{ #category : #'visual properties' }
-TxBasicViewElement >> fillStyle [
-	"Return the current fillStyle of the receiver."
-	self assureExtension.
-	^extension fillStyle ifNil: [
-		backgroundColor
-			ifNil: [self theme backgroundColor]]
-]
-
 { #category : #drawing }
 TxBasicViewElement >> fullDrawOnAthensCanvas: anAthensCanvas [ 
 	"Draw the full Morphic structure on the given Canvas"
@@ -136,6 +108,7 @@ TxBasicViewElement >> fullDrawOnAthensCanvas: anAthensCanvas [
 { #category : #initialization }
 TxBasicViewElement >> initialize [
 	super initialize.
+	self background: Color white.
 	self initializeText: '' asTxModel 
 ]
 

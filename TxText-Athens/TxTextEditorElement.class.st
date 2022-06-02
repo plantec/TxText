@@ -3,8 +3,8 @@ Class {
 	#superclass : #TxBasicViewElement,
 	#instVars : [
 		'controller',
-		'cursorMorph',
-		'layoutViewMorph'
+		'cursorElement',
+		'layoutViewElement'
 	],
 	#classVars : [
 		'CursorEdgeMargin'
@@ -152,10 +152,10 @@ TxTextEditorElement >> autoScrollView: evt [
 	"This is kind of a hack because the PluggableTextMorph expects me to first expand the selection before auto scrolling will work."
 
 	evt position y < self top
-		ifTrue: [ layoutViewMorph scrollBy: 0 @ (evt position y - self top) abs negated ]
-		ifFalse: [ layoutViewMorph scrollBy: 0 @ (evt position y - self top) abs ].
+		ifTrue: [ layoutViewElement scrollBy: 0 @ (evt position y - self top) abs negated ]
+		ifFalse: [ layoutViewElement scrollBy: 0 @ (evt position y - self top) abs ].
 	
-	self selectTo: evt position - layoutViewMorph innerBounds origin.
+	self selectTo: evt position - layoutViewElement innerBounds origin.
 ]
 
 { #category : #accessing }
@@ -191,7 +191,7 @@ TxTextEditorElement >> controller [
 
 { #category : #updating }
 TxTextEditorElement >> controllerChanged [
-	layoutViewMorph updateMorph.
+	layoutViewElement invalidate.
 	self updateCursor: true.
 ]
 
@@ -209,15 +209,15 @@ TxTextEditorElement >> copyToClipboard [
 { #category : #accessing }
 TxTextEditorElement >> cursor: aTxCursor [ 
 
-	cursorMorph delete.
-	cursorMorph := aTxCursor.
-	self addMorph: cursorMorph.
+	cursorElement delete.
+	cursorElement := aTxCursor.
+	self addMorph: cursorElement.
 ]
 
 { #category : #'event handling' }
 TxTextEditorElement >> cursorForPosition: aPoint [
 	| pos |
-	pos := layoutViewMorph textPositionAt: (aPoint - layoutViewMorph innerBounds origin).
+	pos := layoutViewElement textPositionAt: (aPoint - layoutViewElement innerBounds origin).
 	^ pos span attributeAt: TxMouseCursorAttribute.
 	
 ]
@@ -241,7 +241,7 @@ TxTextEditorElement >> defaultCursor [
 TxTextEditorElement >> doLayoutIn: layoutBounds [
 
 	"force view morph to always cover layout bounds"
-	layoutViewMorph bounds: layoutBounds.
+	layoutViewElement bounds: layoutBounds.
 	self updateCursor.
 	super doLayoutIn:layoutBounds.
 	
@@ -459,18 +459,16 @@ self halt.
 
 { #category : #initialization }
 TxTextEditorElement >> initializeText: aTxModel [ 
-	cursorMorph := TxCaretCursor new.
-	self addMorph: cursorMorph.
+	cursorElement := TxBlCaretCursor new.
+	layoutViewElement := self newViewElementOn: aTxModel.
+	layoutViewElement 	constraintsDo: [ :c |
+			c horizontal matchParent.
+			c vertical matchParent ].
+	self addChild: layoutViewElement.
+	self addChild: cursorElement.
 
-	layoutViewMorph := self newViewMorphOn: aTxModel.
-	layoutViewMorph 
-"		hResizing: #spaceFill;
-		vResizing: #spaceFill".
-	self addMorph: layoutViewMorph.
-
- 	
 	self initializeController.
-	self color: Color white
+	self background: Color white
 ]
 
 { #category : #editing }
@@ -509,23 +507,33 @@ TxTextEditorElement >> keyboardFocusChange: gotFocus [
 
 	super keyboardFocusChange: gotFocus.
 	
-	cursorMorph visible: gotFocus; stopStepping.
+	cursorElement visible: gotFocus; stopStepping.
+]
+
+{ #category : #updating }
+TxTextEditorElement >> layout: anElement in: aRectangle context: aBlElementBoundsUpdateContext [
+
+	"force view morph to always cover layout bounds"
+	layoutViewElement bounds: aRectangle.
+	self updateCursor.
+	super layout: anElement in: aRectangle context: aBlElementBoundsUpdateContext
+	
 ]
 
 { #category : #accessing }
 TxTextEditorElement >> layoutStrategy: aStrategy [
 
-	self layoutViewMorph layoutStrategy: aStrategy
+	self layoutViewElement layoutStrategy: aStrategy
 ]
 
 { #category : #accessing }
 TxTextEditorElement >> layoutView [
-	^ layoutViewMorph layoutView
+	^ layoutViewElement layoutView
 ]
 
 { #category : #accessing }
-TxTextEditorElement >> layoutViewMorph [
-	^ layoutViewMorph
+TxTextEditorElement >> layoutViewElement [
+	^ layoutViewElement
 ]
 
 { #category : #'event handling' }
@@ -533,8 +541,8 @@ TxTextEditorElement >> mouseDown: anEvent [
 	| pos action point |
 	self takeKeyboardFocus.
 	
-	point := anEvent position - layoutViewMorph innerBounds origin.
-	pos := layoutViewMorph textPositionAt: point. 
+	point := anEvent position - layoutViewElement innerBounds origin.
+	pos := layoutViewElement textPositionAt: point. 
 	action := pos span attributeAt: TxActionAttribute.
 	(action handleEvent: anEvent) ifTrue: [  ^ self ].
 	
@@ -575,7 +583,7 @@ TxTextEditorElement >> mouseMove: anEvent [
 			stepTime: 100. "fast enough" ]
 		ifTrue: [ 		
 			self stopSteppingSelector: #autoScrollView:.
-			self selectTo: anEvent position - layoutViewMorph innerBounds origin.
+			self selectTo: anEvent position - layoutViewElement innerBounds origin.
 		]
 	 ]
 ]
@@ -588,10 +596,10 @@ TxTextEditorElement >> mouseUp: anEvent [
 { #category : #'event handling' }
 TxTextEditorElement >> mouseWheel: event [
 	event isUp ifTrue: [
-		layoutViewMorph scrollBy: 0@ (layoutViewMorph height/10) negated.
+		layoutViewElement scrollBy: 0@ (layoutViewElement height/10) negated.
 		  ].
 	event isDown ifTrue: [ 
-		layoutViewMorph scrollBy: 0@ (layoutViewMorph height/10).
+		layoutViewElement scrollBy: 0@ (layoutViewElement height/10).
 	  ].
 	
 	self updateCursor: false.
@@ -603,7 +611,7 @@ TxTextEditorElement >> moveDown [
 	| pos visualPos point |
 
 	pos := controller cursorPosition.
-	visualPos := layoutViewMorph layoutPositionAt:  pos ifOutside: [
+	visualPos := layoutViewElement layoutPositionAt:  pos ifOutside: [
 		"outside of layout, lets move down via text"
 		controller moveDown.
 		^ self updateCursor: true.
@@ -611,10 +619,10 @@ TxTextEditorElement >> moveDown [
 	
 	"we are adding small constant to point just outside the bounds of current line where cursor is located"
 	point := visualPos bottomPoint + (0@0.001).
-	layoutViewMorph ensurePointWithinLayout: point.
+	layoutViewElement ensurePointWithinLayout: point.
 
 	".. and if there's something more, let layout give us new position "
-	controller moveCursorTo: (layoutViewMorph textPositionAt: point).		
+	controller moveCursorTo: (layoutViewElement textPositionAt: point).		
 	self updateCursor:true.
 	
 ]
@@ -625,7 +633,7 @@ TxTextEditorElement >> moveDown: extendingSelection [
 	| pos visualPos point |
 
 	pos := controller cursorPosition.
-	visualPos := layoutViewMorph layoutPositionAt:  pos ifOutside: [
+	visualPos := layoutViewElement layoutPositionAt:  pos ifOutside: [
 		"outside of layout, lets move down via text"
 		controller moveDown.
 		^ self updateCursor: true.
@@ -633,10 +641,10 @@ TxTextEditorElement >> moveDown: extendingSelection [
 	
 	"we are adding small constant to point just outside the bounds of current line where cursor is located"
 	point := visualPos bottomPoint + (0@0.001).
-	layoutViewMorph ensurePointWithinLayout: point.
+	layoutViewElement ensurePointWithinLayout: point.
 
 	".. and if there's something more, let layout give us new position "
-	point := layoutViewMorph textPositionAt: point.
+	point := layoutViewElement textPositionAt: point.
 	extendingSelection 
 		ifTrue: [ controller moveSelectionEndTo: point ] 
 		ifFalse: [ controller moveCursorTo: point ].
@@ -658,17 +666,17 @@ TxTextEditorElement >> movePageDown [
 	| pos visualPos point |
 
 	pos := controller cursorPosition.
-	visualPos := layoutViewMorph layoutPositionAt:  pos ifOutside: [
-		layoutViewMorph scrollIntoView: pos.
-		visualPos := layoutViewMorph layoutPositionAt:  pos ifOutside: [ self error: 'that''s not damn possible' ].
+	visualPos := layoutViewElement layoutPositionAt:  pos ifOutside: [
+		layoutViewElement scrollIntoView: pos.
+		visualPos := layoutViewElement layoutPositionAt:  pos ifOutside: [ self error: 'that''s not damn possible' ].
 	].
 	
 	
 	"we are adding small constant to point just outside the bounds of current line where cursor is located"
 	point := visualPos topPointInView.
-	layoutViewMorph scrollBy: 0@visualPos layout view height.
+	layoutViewElement scrollBy: 0@visualPos layout view height.
  
- 	controller moveCursorTo: (layoutViewMorph textPositionAt: point).		
+ 	controller moveCursorTo: (layoutViewElement textPositionAt: point).		
 	self updateCursor:true.
 	
 ]
@@ -680,17 +688,17 @@ TxTextEditorElement >> movePageUp [
 
 
 	pos := controller cursorPosition.
-	visualPos := layoutViewMorph layoutPositionAt:  pos ifOutside: [
-		layoutViewMorph scrollIntoView: pos.
-		visualPos := layoutViewMorph layoutPositionAt:  pos ifOutside: [ self error: 'that''s not damn possible' ].
+	visualPos := layoutViewElement layoutPositionAt:  pos ifOutside: [
+		layoutViewElement scrollIntoView: pos.
+		visualPos := layoutViewElement layoutPositionAt:  pos ifOutside: [ self error: 'that''s not damn possible' ].
 		].
 	
 	
 	"we are adding small constant to point just outside the bounds of current line where cursor is located"
 	point := visualPos topPointInView.
-	layoutViewMorph scrollBy: 0@visualPos layout view height negated.
+	layoutViewElement scrollBy: 0@visualPos layout view height negated.
  
- 	controller moveCursorTo: (layoutViewMorph textPositionAt: point).		
+ 	controller moveCursorTo: (layoutViewElement textPositionAt: point).		
 	self updateCursor:true.
 	
 ]
@@ -706,7 +714,7 @@ TxTextEditorElement >> moveRight [
 TxTextEditorElement >> moveTo: aPoint [
 	"when user clicks on text, move a text cursor close to hand position"
 	| textPosition |
-	textPosition := layoutViewMorph textPositionAt: aPoint.
+	textPosition := layoutViewElement textPositionAt: aPoint.
 	controller moveCursorTo: textPosition.
 	self updateCursor: true.
 	
@@ -738,7 +746,7 @@ TxTextEditorElement >> moveUp: extendingSelection [
 	"move up visually"
 	| pos visualPos point |
 	pos := controller cursorPosition.
-	visualPos := layoutViewMorph layoutPositionAt:  pos ifOutside: [
+	visualPos := layoutViewElement layoutPositionAt:  pos ifOutside: [
 		"outside of layout, lets move down via text"
 		controller moveUp.
 
@@ -747,14 +755,20 @@ TxTextEditorElement >> moveUp: extendingSelection [
 	"we are subtracting small constant to point just outside the bounds at the top of current line"
 
 	point := visualPos topPointInView - (0@0.0001).
-	layoutViewMorph ensurePointWithinLayout: point.
+	layoutViewElement ensurePointWithinLayout: point.
 
-	pos := layoutViewMorph textPositionAt: point.
+	pos := layoutViewElement textPositionAt: point.
 
 	extendingSelection 
 		ifTrue: [ controller moveSelectionEndTo:pos ] 
 		ifFalse: [ controller moveCursorTo: pos ].
 	self updateCursor: true.
+]
+
+{ #category : #initialization }
+TxTextEditorElement >> newViewElementOn: aTxModel [ 
+	^ TxLayoutViewElement text: aTxModel .
+
 ]
 
 { #category : #initialization }
@@ -782,21 +796,21 @@ TxTextEditorElement >> pasteClipboard [
 { #category : #scrolling }
 TxTextEditorElement >> resetViewTo: startPosition [
 
-	layoutViewMorph resetViewTo: startPosition.
+	layoutViewElement resetViewTo: startPosition.
 	self updateCursor: false.
 
 ]
 
 { #category : #scrolling }
 TxTextEditorElement >> scrollBy: aPoint [ 
-	layoutViewMorph scrollBy: aPoint.
+	layoutViewElement scrollBy: aPoint.
 	self changed.
 ]
 
 { #category : #navigation }
 TxTextEditorElement >> scrollIntoView: aTextPosition [
 
-	layoutViewMorph scrollIntoView: aTextPosition.
+	layoutViewElement scrollIntoView: aTextPosition.
 	self updateCursor: false.
 ]
 
@@ -811,7 +825,7 @@ TxTextEditorElement >> selectAll [
 TxTextEditorElement >> selectTo: aPoint [ 
 	"when user clicks on text, shift key select close to hand position"
 	| textPosition |
-	textPosition := layoutViewMorph textPositionAt: aPoint.
+	textPosition := layoutViewElement textPositionAt: aPoint.
 	controller moveSelectionEndTo: textPosition.
 	self updateCursor: true.
 	
@@ -843,7 +857,7 @@ TxTextEditorElement >> takesKeyboardFocus [
 
 { #category : #accessing }
 TxTextEditorElement >> text [
-	^ layoutViewMorph text 
+	^ layoutViewElement text 
 ]
 
 { #category : #editing }
@@ -863,16 +877,17 @@ TxTextEditorElement >> updateCursor: scrollViewToCursorPos [
 	| position textPosition |
 
 	scrollViewToCursorPos ifTrue: [  
-		layoutViewMorph 
+		layoutViewElement 
 			scrollIntoView: controller cursorPosition
 			margin: CursorEdgeMargin
 		 ].
 
 	textPosition := controller cursorPosition.
-	position := layoutViewMorph layoutPositionAt: textPosition ifOutside: [  
-		^ cursorMorph visible: false.
+	position := layoutViewElement layoutPositionAt: textPosition ifOutside: [  
+		^ cursorElement .
 		].
-	cursorMorph visible: self hasFocus.
-	cursorMorph layoutPosition: position.
+	self flag: 'TODO: handle visibility'.
+	"cursorElement visible: self hasFocus."
+	cursorElement layoutPosition: position.
 
 ]
