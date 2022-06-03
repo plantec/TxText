@@ -265,17 +265,9 @@ TxTextEditorElement >> drawCursorPositionOn: aCanvas [
 ]
 
 { #category : #drawing }
-TxTextEditorElement >> drawKeyboardFocusOn: aCanvas [ 
+TxTextEditorElement >> drawKeyboardFocusOnSpartaCanvas: aCanvas [ 
 	"draw an outline, indicating that receiver has the input focus"
-	| stroke |
-	stroke := aCanvas setStrokePaint: Color yellow.
-	stroke 
-		width: self borderWidth;
-		joinRound.
-	aCanvas
-		drawShape: (self innerBounds expandBy: self borderWidth/2.0) ;
-		draw.
-		
+
 ]
 
 { #category : #'drawing-not supported' }
@@ -286,9 +278,16 @@ TxTextEditorElement >> drawOn: aCanvas [
 { #category : #drawing }
 TxTextEditorElement >> drawOnAthensCanvas: aCanvas [
 	super drawOnAthensCanvas: aCanvas.
-	self drawSelectionOn: aCanvas.
+	self drawSelectionOnSpartaCanvas: aCanvas.
 	self hasKeyboardFocus 
 		ifTrue: [ self drawKeyboardFocusOn: aCanvas ]
+]
+
+{ #category : #drawing }
+TxTextEditorElement >> drawOnSpartaCanvas: aCanvas [
+	super drawOnSpartaCanvas: aCanvas.
+	self drawSelectionOnSpartaCanvas: aCanvas.
+	self drawKeyboardFocusOnSpartaCanvas: aCanvas
 ]
 
 { #category : #drawing }
@@ -315,10 +314,26 @@ TxTextEditorElement >> drawSelectionOn: aCanvas [
 
 	controller selection isEmpty ifTrue: [ ^ self ].
 	aCanvas pathTransform restoreAfter: [ 
-		aCanvas pathTransform translateBy: self innerBounds topLeft.  
+		aCanvas pathTransform translateBy: self position.  
 		aCanvas 
 			clipBy: (0@0 extent: self layoutView extent)  
 			during: [ 
+				self layoutView 
+					renderHighlight: controller selection 
+					with: self theme selectionColor 
+					on: aCanvas ]]
+]
+
+{ #category : #drawing }
+TxTextEditorElement >> drawSelectionOnSpartaCanvas: aCanvas [
+
+	controller selection isEmpty ifTrue: [ ^ self ].
+	aCanvas transform 
+		by:  [ :t | t translateBy: self position]
+		during: [ 
+		aCanvas clip 
+		by: (self geometry pathOnSpartaCanvas: aCanvas of: self)
+		during: [
 				self layoutView 
 					renderHighlight: controller selection 
 					with: self theme selectionColor 

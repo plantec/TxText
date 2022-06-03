@@ -12,7 +12,7 @@ TxLayoutViewElement >> drawOnSpartaCanvas: aCanvas [
 	"Before rendering, transform from global coordinates (Morphic) to relative coordinates (Athens)"
 
 	super drawOnSpartaCanvas: aCanvas.
-	layoutView renderOn: aCanvas
+	layoutView renderOnSpartaCanvas: aCanvas
 ]
 
 { #category : #geometry }

@@ -37,7 +37,7 @@ TxBasicViewElement class >> openInWindowWithText: aTxModel [
 			c horizontal matchParent.
 			c vertical matchParent ]; 
 		wrapText: true.
-	editorElement openInOblSpace.
+	editorElement openInOBlSpace.
 	^ editorElement
 ]
 

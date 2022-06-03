@@ -296,6 +296,19 @@ TxAthensLayoutView >> renderOn: canvas [
 	renderer renderLines: layout lines on: canvas
 ]
 
+{ #category : #rendering }
+TxAthensLayoutView >> renderOnSpartaCanvas: canvas [
+
+	"
+	set up clipping
+	- draw line by line
+	"
+
+	| renderer |
+	renderer := TxTextRenderer new.
+	renderer renderLines: layout lines onSpartaCanvas: canvas
+]
+
 { #category : #initializing }
 TxAthensLayoutView >> resetLayout [
 
